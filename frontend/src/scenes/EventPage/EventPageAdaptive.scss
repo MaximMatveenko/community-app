@@ -36,7 +36,7 @@
 
             div {
                 border-right: none;
-                border-bottom: 2px solid $background-color;
+               
                 width: 100%;
             }
 
@@ -88,6 +88,10 @@
             }
         }
     }
+
+    .event__information > div {
+        border-bottom: 2px solid $background-color;
+    }
 }
 
 @include respond-to(extra-small-range) {
@@ -111,7 +115,6 @@
 
             div {
                 border-right: none;
-                border-bottom: 2px solid $background-color;
                 width: 100%;
             }
 
@@ -163,5 +166,9 @@
                 font-size: $medium-font-2;
             }
         }
+    }
+
+    .event__information > div {
+        border-bottom: 2px solid $background-color;
     }
 }

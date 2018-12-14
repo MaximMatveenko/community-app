@@ -38,16 +38,6 @@
         color: $grey-light;
         padding: 2% 0;
 
-        div {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            border-right: 2px solid $background-color;
-            height: 80px;
-            width: 30%;
-        }
-
         &-place:last-child {
             border: none;
             width: 40%
@@ -102,4 +92,15 @@
             border: 2px solid $orange;
         }
     }
+}
+
+.event__information > div{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-right: 2px solid $background-color;
+    height: 80px;
+    width: 30%;
 }
