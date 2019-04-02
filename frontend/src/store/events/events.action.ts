@@ -11,19 +11,19 @@ export enum EventsActionTypes {
   EditEvent = '[event] Edit Event',
   EditEventSuccess = '[event] Edit Event (Success)',
   EditEventError = '[event] Edit Event (Error)',
-  LoadEvents = '[event] Load Events',
-  LoadEventsSuccess = '[event] Load Event (Success)',
-  LoadEventsError = '[event] Load Events (Error)',
   LoadEvent = '[event] Load Event',
   LoadEventSuccess = '[event] Load Event (Success)',
-  LoadEventError = '[event] Load Event (Error)'
+  LoadEventError = '[event] Load Event (Error)',
+  LoadEvents = '[event] Load Events',
+  LoadEventsSuccess = '[event] Load Events (Success)',
+  LoadEventsError = '[event] Load Events (Error)',
 }
 
 @action()
 export class AddEvent {
   public readonly type = EventsActionTypes.AddEvent;
 
-  public constructor(public payload: Event) {}
+  public constructor(public payload: { event: Event, userId: number }) {}
 }
 
 @action()
@@ -42,7 +42,7 @@ export class AddEventError {
 export class DeleteEvent {
   public readonly type = EventsActionTypes.DeleteEvent;
 
-  public constructor(public payload: Event) {}
+  public constructor(public payload: { event: Event, userId: number }) {}
 }
 
 @action()
@@ -61,7 +61,7 @@ export class DeleteEventError {
 export class EditEvent {
   public readonly type = EventsActionTypes.EditEvent;
 
-  public constructor(public payload: Event) {}
+  public constructor(public payload: { event: Event, userId: number }) {}
 }
 
 @action()
@@ -82,22 +82,10 @@ export class LoadEvents {
 }
 
 @action()
-export class LoadEventsSuccess {
-  public readonly type = EventsActionTypes.LoadEventsSuccess;
-
-  public constructor(public payload: Event[]) {}
-}
-
-@action()
-export class LoadEventsError {
-  public readonly type = EventsActionTypes.LoadEventsError;
-}
-
-@action()
 export class LoadEvent {
   public readonly type = EventsActionTypes.LoadEvent;
 
-  public constructor(public payload: number) {}
+  public constructor(public payload: number ) {}
 }
 
 @action()
@@ -112,6 +100,18 @@ export class LoadEventError {
   public readonly type = EventsActionTypes.LoadEventError;
 }
 
+@action()
+export class LoadEventsSuccess {
+  public readonly type = EventsActionTypes.LoadEventsSuccess;
+
+  public constructor(public payload: Event[]) {}
+}
+
+@action()
+export class LoadEventsError {
+  public readonly type = EventsActionTypes.LoadEventsError;
+}
+
 export type EventActions =
   | AddEvent
   | AddEventSuccess
@@ -122,9 +122,9 @@ export type EventActions =
   | EditEvent
   | EditEventSuccess
   | EditEventError
-  | LoadEvents
-  | LoadEventsSuccess
-  | LoadEventsError
   | LoadEvent
   | LoadEventSuccess
-  | LoadEventError;
+  | LoadEventError
+  | LoadEvents
+  | LoadEventsSuccess
+  | LoadEventsError;

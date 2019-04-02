@@ -1,9 +1,7 @@
 import { Avatar } from '@material-ui/core';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import LogoutIcon from '@material-ui/icons/ExitToApp';
-// (Yegor): comment icons imports cuz of temporary removed nav links
-// import SettingsIcon from '@material-ui/icons/SettingsRounded';
-// import AdminIcon from '@material-ui/icons/SupervisorAccount';
+import AdminIcon from '@material-ui/icons/SupervisorAccount';
 
 import * as Cookies from 'js-cookie';
 import * as jwt_decode from 'jwt-decode';
@@ -28,6 +26,7 @@ import {
   CaStatisticPage,
   CaUserSettings,
   CurrentBattle,
+  EventPage,
   Landing,
   PageNotFound,
 } from 'scenes';
@@ -52,8 +51,6 @@ import {
 
 import {
   AppMenu,
-  CaAddGame,
-  CaEditGame,
   CaLogo,
   CaNavbar,
   CaSelect,
@@ -71,13 +68,11 @@ import {
   transitionDirection,
 } from 'models';
 
-import { CaMyGames } from '../MyGames/MyGames';
-
 import { RootProps } from './Root.model';
 
 import './root.scss';
 
-const token = Cookies.get('jwtToken');
+const token = Cookies.get('jwtTokenUser');
 
 if (token) {
   setAuthToken(token);
@@ -144,28 +139,35 @@ export class RootComponent extends React.Component<RootProps> {
     );
   }
 
+  public generateAppMenuItems = (title: string, appMenuItems: AppMenuItem[]): AppMenuItem[] => {
+    const isAuthorized = this.props.status === AuthStatus.Authorized;
+    switch (title) {
+      case 'adminPage': {
+        return [...appMenuItems, {
+          icon: <AdminIcon />,
+          title: 'adminPage',
+          action: () => window.location.href = 'http://localhost:8000/#/',
+        }];
+      }
+      case 'logout': {
+        return [...appMenuItems, {
+          icon: <LogoutIcon />,
+          title: 'logout',
+          action: isAuthorized ? this.logoutUser : this.redToLogin
+        }];
+      }
+      default: return appMenuItems;
+    }
+  }
+
   public getNavbar(authStatus: number): JSX.Element {
 
     const isAuthorized = authStatus === AuthStatus.Authorized;
-    const appMenuItems: AppMenuItem[] = [
-      // (Yegor): temporary hide settings cuz they aren't ready yet
-      // {
-      //   icon: <SettingsIcon />,
-      //   title: 'settings',
-      //   action: () => this.props.history.push('/settings')
-      // },
-      // (Yegor): hide nav link to admin page
-      // {
-      //   icon: <AdminIcon />,
-      //   title: 'adminPage',
-      //   action: () => this.props.history.push('/_admin_console')
-      // },
-      {
-        icon: <LogoutIcon />,
-        title: 'logout',
-        action: isAuthorized ? this.logoutUser : this.redToLogin
-      }
-    ];
+    let appMenuItems: AppMenuItem[] = [];
+
+    this.props.appMenuLinks.filter(item => {
+      appMenuItems = this.generateAppMenuItems(item, appMenuItems);
+    });
 
     const { user, isSnackbarOpen, snackbarType, errors } = this.props;
 
@@ -180,13 +182,12 @@ export class RootComponent extends React.Component<RootProps> {
                 activeClassName: 'ca-navbar__nav-item--active',
                 disabled: !isAuthorized
               },
-              // (Yegor): temporary hide statistics cuz of bad adaptiveness for mobile
-              // {
-              //   text: t('statistics'),
-              //   to: '/statistics',
-              //   activeClassName: 'ca-navbar__nav-item--active',
-              //   disabled: !isAuthorized
-              // }
+              {
+                text: t('statistics'),
+                to: '/statistics',
+                activeClassName: 'ca-navbar__nav-item--active',
+                disabled: !isAuthorized
+              },
               {
                 text: t('events'),
                 to: '/events',
@@ -211,7 +212,6 @@ export class RootComponent extends React.Component<RootProps> {
                     <div className='ca-navbar__profile-name'>{user && user.name}</div>
                   </>
                   : null
-
               }
             </div>
 
@@ -255,14 +255,13 @@ export class RootComponent extends React.Component<RootProps> {
     return (
       <Router>
         <div className='App'>
+          {this.getNavbar(status)}
           <Switch>
             <Route
               exact={true}
               path='/'
               render={props => (
-                <Landing {...props}>
-                  {this.getNavbar(status)}
-                </Landing>
+                <Landing {...props} />
               )}
             />
 
@@ -270,9 +269,7 @@ export class RootComponent extends React.Component<RootProps> {
               exact={true}
               path='/forget-password'
               render={props =>
-                <CaForgetPasswordPage {...props}>
-                  {this.getNavbar(status)}
-                </CaForgetPasswordPage>
+                <CaForgetPasswordPage {...props} />
               }
             />
 
@@ -280,9 +277,7 @@ export class RootComponent extends React.Component<RootProps> {
               exact={true}
               path='/register'
               render={props =>
-                <RegistrationForm {...props} >
-                  {this.getNavbar(status)}
-                </RegistrationForm>
+                <RegistrationForm {...props} />
               }
             />
 
@@ -290,9 +285,7 @@ export class RootComponent extends React.Component<RootProps> {
               exact={true}
               path='/login'
               render={props => (
-                <LoginForm {...props}>
-                  {this.getNavbar(status)}
-                </LoginForm>
+                <LoginForm {...props} />
               )}
             />
             <Route
@@ -305,18 +298,14 @@ export class RootComponent extends React.Component<RootProps> {
               status={status}
               path='/statistics'
             >
-              <CaStatisticPage {...this.props}>
-                {this.getNavbar(status)}
-              </CaStatisticPage>
+              <CaStatisticPage {...this.props} />
             </ProtectedRoute>
 
             <Route
               exact={true}
               path='/battles'
               render={props => (
-                <CaBattles {...props}>
-                  {this.getNavbar(status)}
-                </CaBattles>
+                <CaBattles {...props} />
               )}
             />
 
@@ -324,48 +313,15 @@ export class RootComponent extends React.Component<RootProps> {
               exact={true}
               path='/wait-battle'
               render={props => (
-                <CurrentBattle {...props}>
-                  {this.getNavbar(status)}
-                </CurrentBattle>
+                <CurrentBattle {...props} />
               )}
             />
 
-            <Route
-              exact={true}
-              path='/_admin_console'
-              render={props => (
-                <CaMyGames {...props}>
-                  {this.getNavbar(status)}
-                </CaMyGames>
-              )}
-            />
-
-            <Route
-              exact={true}
-              path='/_admin_console/add-game'
-              render={props => (
-                <CaAddGame {...props}>
-                  {this.getNavbar(status)}
-                </CaAddGame>
-              )}
-            />
-
-            <Route
-              exact={true}
-              path='/_admin_console/edit-game/:idOfTheGame'
-              render={props => (
-                <CaEditGame {...props}>
-                  {this.getNavbar(status)}
-                </CaEditGame>
-              )}
-            />
             <Route
               exact={true}
               path='/settings'
               render={props => (
-                <CaUserSettings {...props}>
-                  {this.getNavbar(status)}
-                </CaUserSettings>
+                <CaUserSettings {...props} />
               )}
             />
 
@@ -373,9 +329,7 @@ export class RootComponent extends React.Component<RootProps> {
               exact={true}
               path='/leaders/:appName'
               render={props => (
-                <CaLeadersPage {...props}>
-                  {this.getNavbar(status)}
-                </CaLeadersPage>
+                <CaLeadersPage {...props} />
               )}
             />
 
@@ -383,9 +337,15 @@ export class RootComponent extends React.Component<RootProps> {
               exact={true}
               path='/events'
               render={props => (
-                <CaEvents {...props}>
-                  {this.getNavbar(status)}
-                </CaEvents>
+                <CaEvents {...props} />
+              )}
+            />
+
+            <Route
+              exact={true}
+              path='/event/:id(\d+)'
+              render={props => (
+                <EventPage {...props} />
               )}
             />
 
@@ -393,16 +353,14 @@ export class RootComponent extends React.Component<RootProps> {
               exact={true}
               path='/about'
               render={props => (
-                <CaAbout {...props}>
-                  {this.getNavbar(status)}
-                </CaAbout>
+                <CaAbout {...props} />
               )}
             />
 
             <Route
               path='/*'
               render={() => (
-                <PageNotFound>{this.getNavbar(status)}</PageNotFound>
+                <PageNotFound />
               )}
             />
           </Switch>
@@ -419,6 +377,7 @@ const mapStateToProps = (state: AppState) => ({
   isSnackbarOpen: state.snackbarUi.isOpen,
   snackbarType: state.snackbarUi.type,
   user: state.auth.user,
+  appMenuLinks: state.auth.appMenuLinks,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

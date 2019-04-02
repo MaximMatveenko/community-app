@@ -5,4 +5,3 @@ node_modules
 .vscode
 target
 *.iml
-*.png

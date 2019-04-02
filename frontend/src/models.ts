@@ -214,6 +214,7 @@ export interface Errors {
 export interface AppMenuItem {
   icon: JSX.Element;
   title: string;
+  disabled?: boolean;
   action: () => void;
 }
 
@@ -337,16 +338,19 @@ export interface Margin {
 
 export interface Event {
   id?: number;
-  userId?: number;
   title: string;
   description: string;
   city: string;
   place: string;
   address: string;
-  locationX: string;
-  locationY: string;
+  location: string;
   begginingInTime: string;
   begginingDate: string;
   createAt?: Date;
   updatedAt?: Date;
+}
+
+export enum Roles {
+  User = 1,
+  Admin = 2,
 }
